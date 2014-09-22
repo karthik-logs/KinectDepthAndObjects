@@ -14,8 +14,11 @@ namespace DepthAndObjects
 
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+        const int _ScreenWidth = 640;
+        const int _ScreenHeight = 480;
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        KinectDepthData _depthData;
 
         public Game1()
         {
@@ -25,7 +28,15 @@ namespace DepthAndObjects
 
         protected override void Initialize()
         {
-
+            _depthData = new KinectDepthData(this);
+            graphics.PreferredBackBufferWidth = _ScreenWidth;
+            graphics.PreferredBackBufferHeight = _ScreenHeight;
+            graphics.ApplyChanges();
+            String error = _depthData.InitKinect();
+            if(error != "")
+            {
+                Exit();
+            }
             base.Initialize();
         }
 
@@ -49,7 +60,9 @@ namespace DepthAndObjects
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-
+            spriteBatch.Begin(SpriteSortMode.Immediate,BlendState.Opaque);
+            _depthData.DrawDepthImage(spriteBatch,GraphicsDevice, new Rectangle(0,0,_ScreenWidth,_ScreenHeight));
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }
